@@ -22,9 +22,27 @@ Once the gem is installed on your system, Jekyll will auto-require it. Just set 
 
 ## Optional settings
 
-Paginate only one category (for home page, other use-cases). Add to `_config.yml`:
+ Add to `_config.yml`:
 
-    paginate_category: "blog"
+    paginate_by:
+        - menu:
+            per_page: 20
+            limit_pages: 10
+            permalink: "editorias/$"
+            template: "_templates/list"
+            page_link: "page:num"
+            exclude:
+            - section: "campaign"
+            - section: "newspaper"
+        - tags:
+            is_tag: true
+            per_page: 20
+            limit_pages: 10
+            permalink: "tags/$"
+            template: "_templates/list"
+            page_link: "page:num"
+
+
 
 ## Contributing
 
