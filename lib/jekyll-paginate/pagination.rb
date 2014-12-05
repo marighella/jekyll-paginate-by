@@ -38,23 +38,33 @@ module Jekyll
       #                   "previous_page" => <Number>,
       #                   "next_page" => <Number> }}
       def paginate(site, page)
-        if site.config['paginate_category'].nil? || site.config['paginate_category'].empty?
-          all_posts = site.site_payload['site']['posts']
-        else
-          selected_category = site.config['paginate_category']
-          all_posts = site.site_payload['site']['categories'][selected_category]
-        end
-        pages = Pager.calculate_pages(all_posts, site.config['paginate'].to_i)
-        (1..pages).each do |num_page|
-          pager = Pager.new(site, num_page, all_posts, pages)
-          if num_page > 1
-            newpage = Page.new(site, site.source, page.dir, page.name)
-            newpage.pager = pager
-            newpage.dir = Pager.paginate_path(site, num_page)
-            site.pages << newpage
-          else
-            page.pager = pager
+        # if site.config['paginate_category'].nil? || site.config['paginate_category'].empty?
+        #   all_posts = site.site_payload['site']['posts']
+        # else
+        #   selected_category = site.config['paginate_category']
+        #   all_posts = site.site_payload['site']['categories'][selected_category]
+        # end
+        menus = ['internacional', 'solidariedade']
+        paginate_layout_dir = site.config['paginate_layout']
+        menus.each do |menu|
+          all_posts = site.site_payload['site']['others']
+          pages = Pager.calculate_pages(all_posts, site.config['paginate'].to_i)
+          (1..pages).each do |num_page|
+            pager = Pager.new(site, num_page, all_posts, pages, menu)
+            if num_page > 1
+              newpage = Page.new(site, site.source, paginate_layout_dir, page.name)
+              newpage.pager = pager
+              newpage.dir = Pager.paginate_path(site, num_page, menu)
+              site.pages << newpage
+            else
+              newpage = Page.new(site, site.source, paginate_layout_dir, page.name)
+              newpage.pager = pager
+              newpage.dir = Pager.paginate_path_first(site, menu)
+              site.pages << newpage
+              # page.pager = pager
+            end
           end
+
         end
       end
 

@@ -2,7 +2,7 @@ module Jekyll
   module Paginate
     class Pager
       attr_reader :page, :per_page, :posts, :total_posts, :total_pages,
-        :previous_page, :previous_page_path, :next_page, :next_page_path
+        :previous_page, :previous_page_path, :next_page, :next_page_path, :first_page_path
 
       # Calculate the number of pages.
       #
@@ -60,11 +60,17 @@ module Jekyll
       # num_page - the pagination page number
       #
       # Returns the pagination path as a string
-      def self.paginate_path(site, num_page)
+      def self.paginate_path(site, num_page, dir_name)
         return nil if num_page.nil?
         return Pagination.first_page_url(site) if num_page <= 1
         format = site.config['paginate_path']
+        format = format.sub(':dir_name', dir_name)
         format = format.sub(':num', num_page.to_s)
+        ensure_leading_slash(format)
+      end
+
+      def self.paginate_path_first(site, dir_name)
+        format = "/#{dir_name}"
         ensure_leading_slash(format)
       end
 
@@ -95,7 +101,9 @@ module Jekyll
       # all_posts - The Array of all the site's Posts.
       # num_pages - The Integer number of pages or nil if you'd like the number
       #             of pages calculated.
-      def initialize(site, page, all_posts, num_pages = nil)
+
+      def initialize(site, page, all_posts, num_pages = nil, dir_name = nil )
+        @dir_name = dir_name
         @page = page
         @per_page = site.config['paginate'].to_i
         @total_pages = num_pages || Pager.calculate_pages(all_posts, @per_page)
@@ -106,13 +114,13 @@ module Jekyll
 
         init = (@page - 1) * @per_page
         offset = (init + @per_page - 1) >= all_posts.size ? all_posts.size : (init + @per_page - 1)
-
+        @first_page_path = Pager.paginate_path_first(site, @dir_name)
         @total_posts = all_posts.size
         @posts = all_posts[init..offset]
         @previous_page = @page != 1 ? @page - 1 : nil
-        @previous_page_path = Pager.paginate_path(site, @previous_page)
+        @previous_page_path = Pager.paginate_path(site, @previous_page, @dir_name)
         @next_page = @page != @total_pages ? @page + 1 : nil
-        @next_page_path = Pager.paginate_path(site, @next_page)
+        @next_page_path = Pager.paginate_path(site, @next_page, @dir_name)
       end
 
       # Convert this Pager's data to a Hash suitable for use by Liquid.
@@ -128,7 +136,8 @@ module Jekyll
           'previous_page' => previous_page,
           'previous_page_path' => previous_page_path,
           'next_page' => next_page,
-          'next_page_path' => next_page_path
+          'next_page_path' => next_page_path,
+          'first_page_path' => first_page_path
         }
       end
 
