@@ -46,9 +46,11 @@ module Jekyll
       #                   "next_page" => <Number> }}
       def start_pagination
         if site.config["paginate_by"]
-          paginate_by = site.config['paginate_by']
-          groups = site.posts.group_by { |post| post.data[paginate_by] }
-          generate_grouped_pages(groups)
+          paginate_by = Array(site.config['paginate_by'])
+          paginate_by.each do |attr| 
+            groups = site.posts.group_by { |post| post.data[attr] }
+            generate_grouped_pages(groups)
+          end
         else
           #generate_pages(site.posts)
         end
