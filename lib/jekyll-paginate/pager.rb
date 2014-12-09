@@ -61,15 +61,11 @@ module Jekyll
       # Returns the pagination path as a string
       def self.paginate_path(site, num_page, dir_name)
         return nil if num_page.nil?
-        return Pagination.first_page_url(site) if num_page <= 1
-        format = site.config['paginate_path']
-        format = format.sub(':dir_name', dir_name)
+        if num_page <= 1
+          return ensure_leading_slash(dir_name)
+        end
+        format = dir_name +"/" + site.config['paginate_path']
         format = format.sub(':num', num_page.to_s)
-        ensure_leading_slash(format)
-      end
-
-      def self.paginate_path_first(site, dir_name)
-        format = "/#{dir_name}"
         ensure_leading_slash(format)
       end
 
@@ -113,7 +109,7 @@ module Jekyll
 
         init = (@page - 1) * @per_page
         offset = (init + @per_page - 1) >= all_posts.size ? all_posts.size : (init + @per_page - 1)
-        @first_page_path = Pager.paginate_path_first(site, @dir_name)
+        @first_page_path = Pager.paginate_path(site, 1, @dir_name)
         @total_posts = all_posts.size
         @posts = all_posts[init..offset]
         @previous_page = @page != 1 ? @page - 1 : nil
