@@ -44,30 +44,31 @@ module Jekyll
         #   selected_category = site.config['paginate_category']
         #   all_posts = site.site_payload['site']['categories'][selected_category]
         # end
-        menus = ['internacional', 'solidariedade']
+        menus = site.posts.group_by { |post| post.data['menu'] }
         paginate_layout_dir = site.config['paginate_layout']
-        menus.each do |menu|
-          all_posts = site.site_payload['site']['others']
-          pages = Pager.calculate_pages(all_posts, site.config['paginate'].to_i)
-          (1..pages).each do |num_page|
-            pager = Pager.new(site, num_page, all_posts, pages, menu)
-            if num_page > 1
-              newpage = Page.new(site, site.source, paginate_layout_dir, page.name)
-              newpage.pager = pager
-              newpage.dir = Pager.paginate_path(site, num_page, menu)
-              site.pages << newpage
-            else
-              newpage = Page.new(site, site.source, paginate_layout_dir, page.name)
-              newpage.pager = pager
-              newpage.dir = Pager.paginate_path_first(site, menu)
-              site.pages << newpage
-              # page.pager = pager
+        menus.each do |key, posts|
+          all_posts = posts
+          unless key.nil? 
+            menu = Slugify.convert(key)
+            pages = Pager.calculate_pages(all_posts, site.config['paginate'].to_i)
+            (1..pages).each do |num_page|
+              pager = Pager.new(site, num_page, all_posts, pages, menu)
+              if num_page > 1
+                newpage = Page.new(site, site.source, paginate_layout_dir, page.name)
+                newpage.pager = pager
+                newpage.dir = Pager.paginate_path(site, num_page, menu)
+                site.pages << newpage
+              else
+                newpage = Page.new(site, site.source, paginate_layout_dir, page.name)
+                newpage.pager = pager
+                newpage.dir = Pager.paginate_path_first(site, menu)
+                site.pages << newpage
+                # page.pager = pager
+              end
             end
           end
-
         end
       end
-
       # Static: Fetch the URL of the template page. Used to determine the
       #         path to the first pager in the series.
       #

@@ -20,7 +20,7 @@ module Jekyll
       #
       # Returns true if pagination is enabled, false otherwise.
       def self.pagination_enabled?(site)
-       !site.config['paginate'].nil? &&
+        !site.config['paginate'].nil? &&
          site.pages.size > 0
       end
 
@@ -39,7 +39,6 @@ module Jekyll
         page.name == 'index.html' &&
           in_hierarchy(config['source'], page_dir, File.dirname(paginate_path))
       end
-
       # Determine if the subdirectories of the two paths are the same relative to source
       #
       # source        - the site source
