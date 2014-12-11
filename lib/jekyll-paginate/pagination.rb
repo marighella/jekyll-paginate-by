@@ -52,11 +52,11 @@ module Jekyll
         if tag_names = site.config["paginate_by_tags"]
           paginate_by_tag(tag_names)
         end
-        generate_pages(site.posts, template, "noticias")
+        generate_pages(site.posts.reverse, template, "noticias")
       end
 
       def paginate_by_attr(attr_names)
-        dir_name = site.config["paginate_by_attr_folder"] || "categories"
+        dir_name = site.config["paginate_by_attr_path"] || "categories"
         attr_names.each do |attr|
           posts = site.posts
           groups = site.posts.group_by { |post| post.data[attr] }
@@ -66,7 +66,7 @@ module Jekyll
 
       def paginate_by_tag(attr_name)
         posts = site.posts
-        dir_name = site.config["paginate_tag_folder"] || "tags"
+        dir_name = site.config["paginate_tag_path"] || "tags"
         groups = {}
         posts.each do |post|
           if data = post.data[attr_name]
@@ -83,7 +83,7 @@ module Jekyll
         groups.each do |group_name, posts|
           if !group_name.nil? && !group_name.empty?
             path = [dir_name, Slugify.convert(group_name)].compact.reject{|s| s.empty?}.join('/')
-            generate_pages(posts, template, path)
+            generate_pages(posts.reverse, template, path)
           end
         end
       end
