@@ -1,7 +1,7 @@
 module Jekyll
   module Paginate
     class Pagination < Generator
-     attr_reader :site, :per_page, :paginate_by, :template
+     attr_reader :site,:paginate_path, :per_page, :template
       # This generator is safe from arbitrary code execution.
 
       safe true
@@ -18,15 +18,16 @@ module Jekyll
         if Pager.pagination_enabled?(site)
           if site.config['paginate_layout']
             @site = site
-            @paginate_by = site.config['paginate_by']
+            @paginate_path = site.config["paginate_path"]
             @per_page = site.config['paginate'].to_i
             @template = site.config['paginate_layout']
             start_pagination
           else
             Jekyll.logger.warn "Pagination:", "Pagination is enabled, but I couldn't find " +
-              "an layout page to use as the pagination template, please site.'paginate_layout' in config. Skipping pagination."
+           "an layout page to use as the pagination template, please site.'paginate_layout' in config. Skipping pagination."
           end
         end
+
       end
 
       # Paginates the blog's posts. Renders the index.html file into paginated
@@ -42,31 +43,48 @@ module Jekyll
       #                   "total_posts" => <Number>,
       #                   "total_pages" => <Number>,
       #                   "previous_page" => <Number>,
-      
       #                   "next_page" => <Number> }}
       def start_pagination
-        if site.config["paginate_by"]
-          paginate_by = Array(site.config['paginate_by'])
-          paginate_by.each do |attr| 
-            groups = site.posts.group_by { |post| post.data[attr] }
-            generate_grouped_pages(groups)
-          end
-        else
-          #generate_pages(site.posts)
+        if attr_name = site.config["paginate_by_attr"]
+          paginate_by_attr(attr_name)
+        end
+
+        if tag_names = site.config["paginate_by_tags"]
+          paginate_by_tag(tag_names)
         end
       end
 
-      def generate_grouped_pages(groups)
-        groups.each do |group_name, posts|
-          paginate_folder = site.config['paginate_folder']
-          dir_name = paginate_folder
-          if !group_name.nil? && !group_name.empty?
-            dir_name = [Slugify.convert(group_name), dir_name].join('/')
-          end
-          generate_pages(posts, template, dir_name)
+      def paginate_by_attr(attr_names)
+        dir_name = site.config["paginate_by_attr_folder"] || "categories"
+        attr_names.each do |attr|
+          posts = site.posts
+          groups = site.posts.group_by { |post| post.data[attr] }
+          generate_grouped_pages(groups,dir_name)
         end
       end
-      
+
+      def paginate_by_tag(attr_name)
+        posts = site.posts
+        dir_name = site.config["paginate_tag_folder"] || "tags"
+        groups = {}
+        posts.each do |post|
+          post.data[attr_name].each do |tag|
+            groups[tag.values.first] ||= []
+            groups[tag.values.first] <<  post
+          end
+        end
+        generate_grouped_pages(groups, dir_name) if groups.size > 0 
+      end
+
+      def generate_grouped_pages(groups, dir_name)
+        groups.each do |group_name, posts|
+          if !group_name.nil? && !group_name.empty?
+            path = [dir_name, Slugify.convert(group_name)].compact.reject{|s| s.empty?}.join('/')
+            generate_pages(posts, template, path)
+          end
+        end
+      end
+
       def generate_pages( posts, template,  dir = nil)
         pages = Pager.calculate_pages(posts, per_page)
         (1..pages).each do |num_page|

@@ -15,7 +15,7 @@ describe(Jekyll::Paginate::Pager) do
     let(:site) { build_site }
 
     it "determines the correct pagination path for each page" do
-      expect(described_class.paginate_path(site, 1)).to eql("/index.html")
+      expect(described_class.paginate_path(site, 1)).to eql("/")
       expect(described_class.paginate_path(site, 2)).to eql("/page2")
     end
   end
@@ -24,7 +24,7 @@ describe(Jekyll::Paginate::Pager) do
     let(:site) { build_site({'paginate_path' => '/blog/page-:num'}) }
 
     it "determines the correct pagination path for each page" do
-      expect(described_class.paginate_path(site, 1)).to eql("/index.html")
+      expect(described_class.paginate_path(site, 1)).to eql("/")
       expect(described_class.paginate_path(site, 2)).to eql("/blog/page-2")
     end
   end
@@ -33,8 +33,8 @@ describe(Jekyll::Paginate::Pager) do
     let(:site) { build_site({'paginate_path' => '/blog/page/:num'}) }
 
     it "determines the correct pagination path for each page" do
-      expect(described_class.paginate_path(site, 1)).to eql("/index.html")
-      expect(described_class.paginate_path(site, 2)).to eql("/blog/page/2")
+      expect(described_class.paginate_path(site, 1,'blog')).to eql("blog/index.html")
+      expect(described_class.paginate_path(site, 2, 'blog')).to eql("/blog/page/2")
     end
   end
 
@@ -42,8 +42,8 @@ describe(Jekyll::Paginate::Pager) do
     let(:site) { build_site({'paginate_path' => '/contacts/page:num'}) }
 
     it "determines the correct pagination path for each page" do
-      expect(described_class.paginate_path(site, 1)).to eql("/contacts/index.html")
-      expect(described_class.paginate_path(site, 2)).to eql("/contacts/page2")
+      expect(described_class.paginate_path(site, 1,'contacts')).to eql("/contacts/")
+      expect(described_class.paginate_path(site, 2,'contacts')).to eql("/contacts/page2")
     end
   end
 

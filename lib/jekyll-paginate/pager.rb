@@ -59,12 +59,12 @@ module Jekyll
       # num_page - the pagination page number
       #
       # Returns the pagination path as a string
-      def self.paginate_path(site, num_page, dir_name)
+      def self.paginate_path(site, num_page, dir_name = '/')
         return nil if num_page.nil?
         if num_page <= 1
           return ensure_leading_slash(dir_name)
         end
-        format = dir_name +"/" + site.config['paginate_path']
+        format = [dir_name, site.config['paginate_path']].compact.join("/")
         format = format.sub(':num', num_page.to_s)
         ensure_leading_slash(format)
       end

@@ -32,7 +32,7 @@ RSpec.configure do |config|
 
   def build_site(config = {})
     site = Jekyll::Site.new(site_configuration(
-      {"paginate" => 1}.merge(config)
+      {"paginate" => 1, "paginate_layout"=> ''}.merge(config)
     ))
     site.process
     site
