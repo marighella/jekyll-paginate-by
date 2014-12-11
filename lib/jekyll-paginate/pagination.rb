@@ -52,6 +52,7 @@ module Jekyll
         if tag_names = site.config["paginate_by_tags"]
           paginate_by_tag(tag_names)
         end
+        generate_pages(site.posts, template, "noticias")
       end
 
       def paginate_by_attr(attr_names)
@@ -68,9 +69,11 @@ module Jekyll
         dir_name = site.config["paginate_tag_folder"] || "tags"
         groups = {}
         posts.each do |post|
-          post.data[attr_name].each do |tag|
-            groups[tag.values.first] ||= []
-            groups[tag.values.first] <<  post
+          if data = post.data[attr_name]
+            data.each do |tag|
+              groups[tag.values.first] ||= []
+              groups[tag.values.first] <<  post
+            end
           end
         end
         generate_grouped_pages(groups, dir_name) if groups.size > 0 
