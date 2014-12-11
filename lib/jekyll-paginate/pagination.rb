@@ -45,26 +45,32 @@ module Jekyll
       #                   "previous_page" => <Number>,
       #                   "next_page" => <Number> }}
       def start_pagination
-        if attr_name = site.config["paginate_by_attr"]
-          paginate_by_attr(attr_name)
+        posts = site.posts
+        if excludes = site.config['paginate_exclude']
+          excludes.each do |exclude|
+            exclude.each do |key, value|
+              posts =  posts.delete_if {|item|item.data[key] == value}
+            end
+          end
         end
-
+        if attr_name = site.config["paginate_by_attr"]
+          paginate_by_attr(attr_name, posts)
+        end
         if tag_names = site.config["paginate_by_tags"]
-          paginate_by_tag(tag_names)
+          paginate_by_tag(tag_names, posts)
         end
         generate_pages(site.posts.reverse, template, "noticias")
       end
 
-      def paginate_by_attr(attr_names)
+      def paginate_by_attr(attr_names, posts)
         dir_name = site.config["paginate_by_attr_path"] || "categories"
         attr_names.each do |attr|
-          posts = site.posts
           groups = site.posts.group_by { |post| post.data[attr] }
-          generate_grouped_pages(groups,dir_name)
+          generate_grouped_pages(groups, dir_name)
         end
       end
 
-      def paginate_by_tag(attr_name)
+      def paginate_by_tag(attr_name, posts)
         posts = site.posts
         dir_name = site.config["paginate_tag_path"] || "tags"
         groups = {}
