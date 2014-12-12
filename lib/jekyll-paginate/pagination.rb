@@ -95,10 +95,13 @@ module Jekyll
       end
 
       def generate_pages( posts, template,  dir = nil)
-        pages = Pager.calculate_pages(posts, per_page)
-        (1..pages).each do |num_page|
+        total_pages = Pager.calculate_pages(posts, per_page)
+        if limit_pages = site.config['paginate_limit_pages']
+          total_pages = total_pages <= limit_pages ? total_pages : limit_pages
+        end
+        (1..total_pages).each do |num_page|
           newpage = Page.new(site, site.source, template, 'index.html')
-          newpage.pager =  Pager.new(site, num_page, posts, pages, dir)
+          newpage.pager =  Pager.new(site, num_page, posts, total_pages, dir)
           newpage.dir = Pager.paginate_path(site, num_page, dir)
           site.pages << newpage
         end
