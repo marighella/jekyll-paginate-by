@@ -45,7 +45,7 @@ module Jekyll
       #                   "previous_page" => <Number>,
       #                   "next_page" => <Number> }}
       def start_pagination
-        posts = site.posts
+        posts = Array.new(site.posts)
         if excludes = site.config['paginate_exclude']
           excludes.each do |exclude|
             exclude.each do |key, value|
