@@ -1,7 +1,7 @@
 module Jekyll
   module Paginate
     class Pagination < Generator
-     attr_reader :site,:paginate_path, :per_page, :template
+     attr_reader :site
       # This generator is safe from arbitrary code execution.
 
       safe true
@@ -16,15 +16,17 @@ module Jekyll
       # Returns nothing.
       def generate(site)
         if Pager.pagination_enabled?(site)
-          if site.config['paginate_layout']
+          if configs =  site.config['paginate_by']
             @site = site
-            @paginate_path = site.config["paginate_path"]
-            @per_page = site.config['paginate'].to_i
-            @template = site.config['paginate_layout']
-            start_pagination
+            configs.each do |raw_config|
+              attr_name = raw_config.keys.first
+              config = raw_config[attr_name]
+              config['name'] = attr_name
+              start_pagination(config)
+            end
           else
             Jekyll.logger.warn "Pagination:", "Pagination is enabled, but I couldn't find " +
-           "an layout page to use as the pagination template, please site.'paginate_layout' in config. Skipping pagination."
+           "an layout page to use as the pagination template, please site.'paginate_by' in config. Skipping pagination."
           end
         end
 
@@ -44,35 +46,40 @@ module Jekyll
       #                   "total_pages" => <Number>,
       #                   "previous_page" => <Number>,
       #                   "next_page" => <Number> }}
-      def start_pagination
+      def start_pagination(config)
         posts = Array.new(site.posts)
-        if excludes = site.config['paginate_exclude']
-          excludes.each do |exclude|
-            exclude.each do |key, value|
-              posts =  posts.delete_if {|item|item.data[key] == value}
-            end
+        posts = exclude_posts(config, posts) if config['exclude']
+
+        if config['is_tag']
+          paginate_by_tag(config, posts)
+        else
+          paginate_by_attr(config, posts)
+        end
+       # generate_pages(site.posts.reverse, template, "noticias")
+      end
+
+      def exclude_posts(config, posts)
+        excludes = config['exclude']
+        excludes.each do |exclude|
+          exclude.each do |key, value|
+            posts.delete_if {|item| item.data[key]  == value}
           end
         end
-        if attr_name = site.config["paginate_by_attr"]
-          paginate_by_attr(attr_name, posts)
-        end
-        if tag_names = site.config["paginate_by_tags"]
-          paginate_by_tag(tag_names, posts)
-        end
-        generate_pages(site.posts.reverse, template, "noticias")
+        posts
       end
 
-      def paginate_by_attr(attr_names, posts)
-        dir_name = site.config["paginate_by_attr_path"] || "categories"
-        attr_names.each do |attr|
-          groups = site.posts.group_by { |post| post.data[attr] }
-          generate_grouped_pages(groups, dir_name)
-        end
+      def parse_permalink(config, attr_name)
+        link = config['permalink'] || Slugify.convert(config['name'])+ "/$"
+        link.sub("$", Slugify.convert(attr_name))
+      end
+      def paginate_by_attr(config, posts)
+        groups = site.posts.group_by { |post| post.data[config['name']] }
+        generate_grouped_pages(config, groups)
       end
 
-      def paginate_by_tag(attr_name, posts)
+      def paginate_by_tag(config, posts)
+        attr_name = config['name']
         posts = site.posts
-        dir_name = site.config["paginate_tag_path"] || "tags"
         groups = {}
         posts.each do |post|
           if data = post.data[attr_name]
@@ -82,57 +89,37 @@ module Jekyll
             end
           end
         end
-        generate_grouped_pages(groups, dir_name) if groups.size > 0 
+        generate_grouped_pages(config, groups) if groups.size > 0 
       end
 
-      def generate_grouped_pages(groups, dir_name)
+      def calculate_pages(config, posts)
+        total_pages = Pager.calculate_pages(posts, config['per_page'].to_i)
+        if limit_pages = config['limit_pages']
+          total_pages = total_pages <= limit_pages ? total_pages : limit_pages
+        end
+        total_pages
+      end
+
+      def generate_grouped_pages(config, groups)
         groups.each do |group_name, posts|
           if !group_name.nil? && !group_name.empty?
-            path = [dir_name, Slugify.convert(group_name)].compact.reject{|s| s.empty?}.join('/')
-            generate_pages(posts.reverse, template, path)
+            generate_pages(config, posts.reverse, group_name)
           end
         end
       end
 
-      def generate_pages( posts, template,  dir = nil)
-        total_pages = Pager.calculate_pages(posts, per_page)
-        if limit_pages = site.config['paginate_limit_pages']
-          total_pages = total_pages <= limit_pages ? total_pages : limit_pages
-        end
+
+      def generate_pages(config, posts, group_name)
+        total_pages = calculate_pages(config, posts)
+        path = parse_permalink(config, group_name)
+        template = config['template']
         (1..total_pages).each do |num_page|
           newpage = Page.new(site, site.source, template, 'index.html')
-          newpage.pager =  Pager.new(site, num_page, posts, total_pages, dir)
-          newpage.dir = Pager.paginate_path(site, num_page, dir)
+          newpage.pager =  Pager.new(site, num_page, posts, total_pages, path)
+          newpage.dir = Pager.paginate_path(site, num_page, path)
           site.pages << newpage
         end
       end
-      # Static: Fetch the URL of the template page. Used to determine the
-      #         path to the first pager in the series.
-      #
-      # site - the Jekyll::Site object
-      #
-      # Returns the url of the template page
-      def self.first_page_url(site)
-        if page = Pagination.new.template_page(site)
-          page.url
-        else
-          nil
-        end
-      end
-
-      # Public: Find the Jekyll::Page which will act as the pager template
-      #
-      # site - the Jekyll::Site object
-      #
-      # Returns the Jekyll::Page which will act as the pager template
-      def template_page(site)
-        site.pages.dup.select do |page|
-          Pager.pagination_candidate?(site.config, page)
-        end.sort do |one, two|
-          two.path.size <=> one.path.size
-        end.first
-      end
-
     end
   end
 end
