@@ -14,7 +14,8 @@ module Jekyll
         @attr_name = @config['attr_name']
         @is_tag = @config["is_tag"]
         @page_link = @config['page_link']
-        @permalink = @config['permalink'] ||  [Slugify.convert(attr_name), "$"].join('/')
+        @permalink = @config['permalink'] ||  [Slugify.convert(@attr_name), "$"].join('/')
+        @only = @config['only']
       end
 
       def copy_posts(posts)
@@ -92,7 +93,8 @@ module Jekyll
       def create_page(site, group, num_page, total_pages)
         path = group.path
         newpage = Page.new(site, site.source, @template, 'index.html')
-        newpage.pager =  Pager.new(path, @per_page, num_page, group.posts, total_pages, @page_link)
+        posts = group.posts[(num_page-1)..(@per_page-1)]
+        newpage.pager =  Pager.new(path, @per_page, num_page, posts, total_pages, @page_link)
         newpage.dir = Pager.paginate_path(path, num_page, @page_link)
         newpage
       end
@@ -111,8 +113,6 @@ module Jekyll
       def only_posts(posts, criterias)
         result = []
         criterias = Array(criterias)
-        require 'pry'
-        binding.pry
         criterias.each do |criteria|
           criteria.each do |key, value|
             result += posts.select {|item| item.data[key] == value}
