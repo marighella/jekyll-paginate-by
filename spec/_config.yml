@@ -1,0 +1,27 @@
+paginate: true
+paginate_by:
+  defaults:
+    permalink: "teste"
+  filters:
+    - category:
+        per_page: 20
+        max_pages: 10
+        permalink: "categories/$"
+        template: "_templates/list"
+        page_link: "page:num"
+        exclude:
+          - category: "excluded"
+    - tags:
+        is_tag: true
+        per_page: 20
+        max_pages: 10
+        permalink: "tags/$"
+        template: "_templates/list"
+        page_link: "page:num"
+    - all: 
+        exclude:
+          - category: "excluded"
+    - category:
+        only: 
+          - category: "category_a"
+
