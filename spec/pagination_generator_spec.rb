@@ -9,7 +9,7 @@ describe(Jekyll::Paginate::PaginationGenerator) do
   let(:config) { pagination_config }
   let(:excluded_posts) { [mock_post({"category"=> "excluded"})] }
   let(:posts) do
-    result = list_mock_post(100, {'category'=> 'category_a'})
+    result = list_mock_post(100, {'category'=> 'category_a', 'tags'=> [{'tag' => 'tagA'}, {'tag' => 'tabB'}]})
     result +=  list_mock_post(100,{'category'=>'category_b'})
     result += excluded_posts
     result
@@ -23,7 +23,7 @@ describe(Jekyll::Paginate::PaginationGenerator) do
   #
   describe 'instance methods' do
     let(:site){ build_site }
-    subject(:instance) { described_class.new(config, site) }
+    subject(:instance) { described_class.new(config["filters"].first, site) }
 
 
     it "#pages_count" do 
