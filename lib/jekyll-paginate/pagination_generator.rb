@@ -93,8 +93,7 @@ module Jekyll
       def create_page(site, group, num_page, total_pages)
         path = group.path
         newpage = Page.new(site, site.source, @template, 'index.html')
-        posts = group.posts[(num_page-1)..(@per_page-1)]
-        newpage.pager =  Pager.new(path, @per_page, num_page, posts, total_pages, @page_link)
+        newpage.pager =  Pager.new(path, @per_page, num_page, group.posts, total_pages, @page_link)
         newpage.dir = Pager.paginate_path(path, num_page, @page_link)
         newpage
       end
