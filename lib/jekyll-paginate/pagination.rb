@@ -1,3 +1,4 @@
+require_relative "pagination_generator"
 module Jekyll
   module Paginate
     class Pagination < Generator
@@ -14,10 +15,12 @@ module Jekyll
       # site - The Site.
       #
       # Returns nothing.
+
       def generate(site)
         if Pager.pagination_enabled?(site)
           if configs =  site.config['paginate_by']
-            configs.each do |config|
+            configs = Pagination.parse_config(configs)
+            configs["filters"].each do |config|
               site.pages +=PaginationGenerator.new(config, site).process
             end
           else

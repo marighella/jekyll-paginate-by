@@ -21,7 +21,7 @@ RSpec.configure do |config|
   end
 
   def pagination_config(overrides = {})
-    YAML.load_file(test_dir('_config.yml')).merge(overrides)["paginate_by"].first
+    YAML.load_file(test_dir('_config.yml')).merge(overrides)["paginate_by"]
   end
 
   def site_configuration(overrides = {})

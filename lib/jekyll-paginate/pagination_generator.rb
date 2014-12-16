@@ -56,7 +56,7 @@ module Jekyll
             end
           end
         end
-        groups
+        groups.map { |name, posts| Group.new(name, posts) }
       end
       def create_group_pagination(group)
         total = pages_count(group.posts.size)
@@ -100,7 +100,9 @@ module Jekyll
       def self.parse_config(config)
         result = {}
         attr_name = config.keys.first
-        result.merge!(config.fetch(attr_name))
+        if config.fetch(attr_name).is_a? Hash
+          result.merge!(config.fetch(attr_name))
+        end
         result["attr_name"] = attr_name
         result
       end

@@ -41,6 +41,10 @@ describe(Jekyll::Paginate::PaginationGenerator) do
       expect(instance.group_by_attr(posts,'category').first).to be_kind_of(Jekyll::Paginate::Group)
     end
 
+    it "#group_by_tag" do 
+      expect(instance.group_by_tag(posts,'tags').first).to be_kind_of(Jekyll::Paginate::Group)
+    end
+
     describe "#create_group_pagination" do
       let(:group) { Jekyll::Paginate::Group.new('group-name', posts) } 
      subject(:result) { instance.create_group_pagination(group) }
@@ -62,6 +66,10 @@ describe(Jekyll::Paginate::PaginationGenerator) do
       it { expect(result[1].url).to be == "/categories/category-b/page2/index.html" }
       it { expect(result.size).to be == instance.pages_count((posts-excluded_posts).size) }
     end
+
+    # it "should create a pagination with all posts" do 
+    #   expect(instance.create_group_pagination(Jekyll::Paginate::Group.new("", posts))).to be(true)
+    # end
   end
 end
 
