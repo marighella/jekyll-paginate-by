@@ -23,19 +23,40 @@ module Jekyll
 
       def process(posts = nil)
         posts = posts ||  @raw_posts 
-        posts = filter_posts(posts, @excludes) 
-        if @is_tag
-          groups = group_by_tag(posts, @attr_name)
+        posts = exclude_posts(posts, @excludes)
+        posts = only_posts(posts, @only) if @only
+        if @attr_name == "all"
+          groups = process_all(posts)
         else
-          groups = group_by_attr(posts, @attr_name)
+          groups = process_with_filters(posts)
         end
         process_groups(groups)
       end
+     
+      def process_with_filters(posts)
+        if @is_tag
+          groups = group_by_tag(posts, @attr_name)
+        else
+          if is_collection?
+            groups = [Group.new(@attr_name, posts, @permalink)]
+          else
+            groups = group_by_attr(posts, @attr_name)
+          end
+        end
+      end
 
+      def process_all(posts)
+        [Group.new("all", posts, @permalink)]
+      end
+
+      def is_collection?
+        @permalink.include?("$") == false
+      end
+    
       def process_groups(groups)
         result = []
         groups.each do |group|
-          if !group.name.nil? && !group.name.empty?
+          unless group.name.nil?
             result +=  create_group_pagination(group)
           end
         end
@@ -43,7 +64,7 @@ module Jekyll
       end
 
       def group_by_attr(posts, attr)
-        posts.group_by { |post| post.data[attr] }.map { |name, posts| Group.new(name, posts) }
+        posts.group_by { |post| post.data[attr] }.map { |name, posts| Group.new(name, posts, @permalink) }
       end
 
       def group_by_tag(posts, attr)
@@ -56,8 +77,9 @@ module Jekyll
             end
           end
         end
-        groups.map { |name, posts| Group.new(name, posts) }
+        groups.map { |name, posts| Group.new(name, posts, @permalink) }
       end
+      
       def create_group_pagination(group)
         total = pages_count(group.posts.size)
         result = []
@@ -68,15 +90,16 @@ module Jekyll
       end
 
       def create_page(site, group, num_page, total_pages)
-          path = parse_permalink(@permalink,group.name)
-          newpage = Page.new(site, site.source, @template, 'index.html')
-          newpage.pager =  Pager.new(path,@per_page, num_page, group.posts, total_pages, path)
-          newpage.dir = Pager.paginate_path(@page_link, num_page, path)
-          newpage
+        path = group.path
+        newpage = Page.new(site, site.source, @template, 'index.html')
+        newpage.pager =  Pager.new(path, @per_page, num_page, group.posts, total_pages, @page_link)
+        newpage.dir = Pager.paginate_path(path, num_page, @page_link)
+        newpage
       end
 
-      def filter_posts(posts, excludes)
+      def exclude_posts(posts, excludes)
         posts = Array.new(posts)
+        excludes = Array(excludes)
         excludes.each do |exclude|
           exclude.each do |key, value|
             posts.delete_if {|item| item.data[key] == value}
@@ -85,8 +108,17 @@ module Jekyll
         posts.reverse
       end
 
-      def parse_permalink(permalink, attr_name)
-        permalink.sub("$", Slugify.convert(attr_name))
+      def only_posts(posts, criterias)
+        result = []
+        criterias = Array(criterias)
+        require 'pry'
+        binding.pry
+        criterias.each do |criteria|
+          criteria.each do |key, value|
+            result += posts.select {|item| item.data[key] == value}
+          end
+        end
+        result
       end
 
       def pages_count(posts_count)

@@ -18,3 +18,10 @@ paginate_by:
         permalink: "tags/$"
         template: "_templates/list"
         page_link: "page:num"
+    - all: 
+        exclude:
+          - category: "excluded"
+    - category:
+        only: 
+          - category: "category_a"
+
