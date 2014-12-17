@@ -32,8 +32,12 @@ module Jekyll
         options = configs['options']
         configuration_filters = []
         configs['filters'].each do |filter|
-          by_name = filter.keys.first
-          configuration_filters << options.merge(filter[by_name])
+          attr_name = filter.keys.first
+
+          result = options.merge(filter[attr_name])
+          result['attr_name'] = attr_name
+
+          configuration_filters << result
         end
         configuration_filters
       end
