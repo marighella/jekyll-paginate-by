@@ -4,7 +4,7 @@ module Jekyll
       def initialize(config, site)
         @site = site
         @raw_posts = copy_posts(@site.posts)
-        @config = PaginationGenerator.parse_config(config)
+        @config = config
         @excludes = @config['exclude'] || []
         @pages_limit = @config['pages_limit'] || nil
         @per_page = @config['per_page'] || 10
@@ -63,7 +63,11 @@ module Jekyll
       end
 
       def group_by_attr(posts, attr)
-        posts.group_by { |post| post.data[attr] }.map { |name, posts| Group.new(name, posts, @permalink) }
+        posts.group_by do |post|
+          post.data[attr]
+        end.map do |key_name, value_posts|
+          Group.new(key_name, value_posts, @permalink)
+        end
       end
 
       def group_by_tag(posts, attr)
@@ -76,7 +80,9 @@ module Jekyll
             end
           end
         end
-        groups.map { |name, posts| Group.new(name, posts, @permalink) }
+        groups.map do |key_name, value_posts|
+          Group.new(key_name, value_posts, @permalink)
+        end
       end
       
       def create_group_pagination(group)
@@ -125,17 +131,6 @@ module Jekyll
         end
         result
       end
-
-      def self.parse_config(config)
-        result = {}
-        attr_name = config.keys.first
-        if config.fetch(attr_name).is_a? Hash
-          result.merge!(config.fetch(attr_name))
-        end
-        result["attr_name"] = attr_name
-        result
-      end
-
     end
   end
 end

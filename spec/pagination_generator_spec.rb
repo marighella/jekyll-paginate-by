@@ -13,12 +13,6 @@ describe(Jekyll::PaginateBy::PaginationGenerator) do
     result
   end
  
-  describe 'static methods' do
-    it '.parse_config' do 
-      expect(described_class.parse_config(config).has_key?("attr_name")).to be(true) 
-    end
-  end
-  #
   describe 'instance methods' do
     let(:site){ build_site }
     subject(:instance) { described_class.new(config["filters"].first, site) }
@@ -64,10 +58,6 @@ describe(Jekyll::PaginateBy::PaginationGenerator) do
     it "#only" do
       expect(instance.only_posts(posts,[{"category"=> "category_a"}]).size).to be == (posts.size - posts_with_category_a.size- excluded_posts.size)
     end
-   
-    # it "should create a pagination with all posts" do 
-    #   expect(instance.create_group_pagination(Jekyll::PaginateBy::Group.new("", posts))).to be(true)
-    # end
   end
 end
 
