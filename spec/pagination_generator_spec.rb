@@ -64,10 +64,6 @@ describe(Jekyll::PaginateBy::PaginationGenerator) do
     it "#only" do
       expect(instance.only_posts(posts,[{"category"=> "category_a"}]).size).to be == (posts.size - posts_with_category_a.size- excluded_posts.size)
     end
-   
-    # it "should create a pagination with all posts" do 
-    #   expect(instance.create_group_pagination(Jekyll::PaginateBy::Group.new("", posts))).to be(true)
-    # end
   end
 end
 

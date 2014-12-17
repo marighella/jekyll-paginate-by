@@ -1,7 +1,7 @@
 module Jekyll
   module PaginateBy
     class Pagination < Generator
-     attr_reader :site
+      attr_reader :site
       # This generator is safe from arbitrary code execution.
 
       safe true
@@ -24,10 +24,9 @@ module Jekyll
             end
           else
             Jekyll.logger.warn "Pagination:", "Pagination is enabled, but I couldn't find " +
-           "an layout page to use as the pagination template, please site.'paginate_by' in config. Skipping pagination."
+              "an layout page to use as the pagination template, please site.'paginate_by' in config. Skipping pagination."
           end
         end
-
       end
 
       def self.parse_config(configs)
