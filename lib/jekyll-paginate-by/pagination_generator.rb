@@ -63,7 +63,11 @@ module Jekyll
       end
 
       def group_by_attr(posts, attr)
-        posts.group_by { |post| post.data[attr] }.map { |name, posts| Group.new(name, posts, @permalink) }
+        posts.group_by do |post|
+          post.data[attr]
+        end.map do |key_name, value_posts|
+          Group.new(key_name, value_posts, @permalink)
+        end
       end
 
       def group_by_tag(posts, attr)
@@ -76,7 +80,9 @@ module Jekyll
             end
           end
         end
-        groups.map { |name, posts| Group.new(name, posts, @permalink) }
+        groups.map do |key_name, value_posts|
+          Group.new(key_name, value_posts, @permalink)
+        end
       end
       
       def create_group_pagination(group)
