@@ -1,8 +1,6 @@
-require_relative 'group'
 module Jekyll
-  module Paginate
+  module PaginateBy
     class PaginationGenerator
-
       def initialize(config, site)
         @site = site
         @raw_posts = copy_posts(@site.posts)

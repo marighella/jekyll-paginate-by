@@ -1,6 +1,5 @@
-require_relative "pagination_generator"
 module Jekyll
-  module Paginate
+  module PaginateBy
     class Pagination < Generator
      attr_reader :site
       # This generator is safe from arbitrary code execution.

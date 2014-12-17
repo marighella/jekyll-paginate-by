@@ -1,5 +1,5 @@
 module Jekyll
-  module Paginate
+  module PaginateBy
     class Group < Struct.new(:name, :posts, :permalink)
      def path
        name = self.name || ""

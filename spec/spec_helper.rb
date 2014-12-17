@@ -1,4 +1,5 @@
-require File.expand_path("../lib/jekyll-paginate", File.dirname(__FILE__))
+require 'jekyll'
+require File.expand_path("../lib/jekyll-paginate-by", File.dirname(__FILE__))
 
 RSpec.configure do |config|
   config.order = 'random'

@@ -1,11 +1,8 @@
 require 'spec_helper'
-require 'pry'
 require 'yaml'
-require_relative "../lib/jekyll-paginate/pagination_generator"
-require_relative "../lib/jekyll-paginate/group"
 
 
-describe(Jekyll::Paginate::Group) do
+describe(Jekyll::PaginateBy::Group) do
   describe "#parse_permalink" do
     subject(:instance) { described_class.new("cat", [], "categories/$") }
     it "with $" do
