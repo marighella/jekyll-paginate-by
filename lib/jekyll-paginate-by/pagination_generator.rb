@@ -4,7 +4,7 @@ module Jekyll
       def initialize(config, site)
         @site = site
         @raw_posts = copy_posts(@site.posts)
-        @config = PaginationGenerator.parse_config(config)
+        @config = config
         @excludes = @config['exclude'] || []
         @pages_limit = @config['pages_limit'] || nil
         @per_page = @config['per_page'] || 10
@@ -131,17 +131,6 @@ module Jekyll
         end
         result
       end
-
-      def self.parse_config(config)
-        result = {}
-        attr_name = config.keys.first
-        if config.fetch(attr_name).is_a? Hash
-          result.merge!(config.fetch(attr_name))
-        end
-        result["attr_name"] = attr_name
-        result
-      end
-
     end
   end
 end

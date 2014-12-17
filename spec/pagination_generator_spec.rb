@@ -13,12 +13,6 @@ describe(Jekyll::PaginateBy::PaginationGenerator) do
     result
   end
  
-  describe 'static methods' do
-    it '.parse_config' do 
-      expect(described_class.parse_config(config).has_key?("attr_name")).to be(true) 
-    end
-  end
-  #
   describe 'instance methods' do
     let(:site){ build_site }
     subject(:instance) { described_class.new(config["filters"].first, site) }
