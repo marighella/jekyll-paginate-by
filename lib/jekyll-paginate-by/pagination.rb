@@ -30,18 +30,18 @@ module Jekyll
       end
 
       def self.parse_config(configs)
-        defaults = configs["defaults"]
-        root_keys = Array.new(defaults.keys)
+        options = configs["options"]
+        root_keys = Array.new(options.keys)
         configs["filters"].each do |filter|
-         filter.keys.each do |filter_key_name|
-           root_keys.each do |key|
-             unless filter[filter_key_name].has_key? key
-               filter[filter_key_name][key] = defaults[key] 
-             end
-           end
-         end
-       end
-       configs
+          filter.keys.each do |filter_key_name|
+            root_keys.each do |key|
+              unless filter[filter_key_name].has_key? key
+                filter[filter_key_name][key] = options[key]
+              end
+            end
+          end
+        end
+        configs
       end
     end
   end

@@ -26,7 +26,7 @@ Once the gem is installed on your system, Jekyll will auto-require it. Just set 
 
 paginate: true
 paginate_by:
-  defaults:
+  options:
     permalink: "teste"
   filters:
     - category:
