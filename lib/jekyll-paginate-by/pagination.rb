@@ -35,7 +35,7 @@ module Jekyll
           attr_name = filter.keys.first
 
           result = options.merge(filter[attr_name])
-          result['attr_name'] = attr_name
+          result['category_name'] = attr_name
 
           configuration_filters << result
         end

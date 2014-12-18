@@ -1,6 +1,6 @@
 paginate: true
 paginate_by:
-  defaults:
+  options:
     permalink: "teste"
   filters:
     - category:

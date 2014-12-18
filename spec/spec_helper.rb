@@ -24,6 +24,10 @@ RSpec.configure do |config|
     YAML.load_file(test_dir('_config.yml')).merge(overrides)["paginate_by"]
   end
 
+  def pagination_config_by_pass(overrides = {})
+    parse_config(pagination_config)
+  end
+
   def site_configuration(overrides = {})
     config =  build_configs({
       "source"      => source_dir,
@@ -53,5 +57,20 @@ RSpec.configure do |config|
       build_configs(YAML.load_file(test_dir('_config.yml'))).merge(config)
     ))
     site
+  end
+
+  private
+  def parse_config(configs)
+    options = configs['options']
+    configuration_filters = []
+    configs['filters'].each do |filter|
+      attr_name = filter.keys.first
+
+      result = options.merge(filter[attr_name])
+      result['category_name'] = attr_name
+
+      configuration_filters << result
+    end
+    configuration_filters
   end
 end

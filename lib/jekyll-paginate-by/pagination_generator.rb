@@ -9,10 +9,10 @@ module Jekyll
         @pages_limit = @config['pages_limit'] || nil
         @per_page = @config['per_page'] || 10
         @template = @config['template']
-        @attr_name = @config['attr_name']
+        @category_name = @config['category_name']
         @is_tag = @config["is_tag"]
         @page_link = @config['page_link']
-        @permalink = @config['permalink'] ||  [Slugify.convert(@attr_name), "$"].join('/')
+        @permalink = @config['permalink'] ||  [Slugify.convert(@category_name), "$"].join('/')
         @only = @config['only']
       end
 
@@ -24,7 +24,7 @@ module Jekyll
         posts = posts ||  @raw_posts 
         posts = exclude_posts(posts, @excludes)
         posts = only_posts(posts, @only) if @only
-        if @attr_name == "all"
+        if @category_name == "all"
           groups = process_all(posts)
         else
           groups = process_with_filters(posts)
@@ -34,12 +34,12 @@ module Jekyll
      
       def process_with_filters(posts)
         if @is_tag
-          groups = group_by_tag(posts, @attr_name)
+          groups = group_by_tag(posts, @category_name)
         else
           if is_collection?
-            groups = [Group.new(@attr_name, posts, @permalink)]
+            groups = [Group.new(@category_name, posts, @permalink)]
           else
-            groups = group_by_attr(posts, @attr_name)
+            groups = group_by_attr(posts, @category_name)
           end
         end
       end

@@ -21,7 +21,7 @@ describe(Jekyll::PaginateBy::Pagination) do
   end
 
   it do
-    result = [{'permanlink'=> 'teste', 'name'=>'ola'}]
+    result = [{'permanlink'=> 'teste', 'name'=>'ola', 'category_name' => 'category'}]
     expect(described_class.parse_config(config)).to eq(result)
   end
 end

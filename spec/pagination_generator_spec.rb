@@ -3,7 +3,7 @@ require 'yaml'
 
 
 describe(Jekyll::PaginateBy::PaginationGenerator) do
-  let(:config) { pagination_config }
+  let(:config) { pagination_config_by_pass }
   let(:excluded_posts) { [mock_post({'category'=> 'excluded'})] }
   let(:posts_with_category_a) {list_mock_post(100, {'category'=> 'category_a', 'tags'=> [{'tag' => 'tagA'}, {'tag' => 'tabB'}]})}
   let(:posts) do
@@ -15,7 +15,9 @@ describe(Jekyll::PaginateBy::PaginationGenerator) do
  
   describe 'instance methods' do
     let(:site){ build_site }
-    subject(:instance) { described_class.new(config['filters'].first, site) }
+    subject(:instance) do
+      described_class.new(config.first, site)
+    end
 
     it '#pages_count' do 
       expect(instance.pages_count(100)).to eq(5)
@@ -49,10 +51,19 @@ describe(Jekyll::PaginateBy::PaginationGenerator) do
 
     describe '#process' do 
       subject(:result) { instance.process(posts) }
-      it { expect(result).to be_kind_of(Array)}
-      it { expect(result.first.url).to be == '/categories/category-b/index.html' }
-      it { expect(result[1].url).to be == '/categories/category-b/page2/index.html' }
-      it { expect(result.size).to be == instance.pages_count((posts-excluded_posts).size) }
+      it do
+        expect(result).to be_kind_of(Array)
+      end
+
+      it do
+        expect(result.first.url).to eq('/categories/category-b/index.html')
+      end
+      it do
+        expect(result[1].url).to eq('/categories/category-b/page2/index.html')
+      end
+      it do
+        expect(result.size).to eq(instance.pages_count((posts-excluded_posts).size))
+      end
     end
 
     it '#only' do
